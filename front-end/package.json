@@ -37,7 +37,7 @@
   },
 
   "react-dotenv": {
-    "whitelist": ["REACT_APP_KEY", "REACT_APP_PRICE_PER_KM"]
+    "whitelist": ["REACT_APP_KEY", "REACT_APP_PRICE_PER_KM", "REACT_APP_ROUND_PERCENT"]
   },
 
   "eslintConfig": {

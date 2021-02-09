@@ -29,6 +29,11 @@ import env from "react-dotenv";
 
 const stripePublicKey = env.REACT_APP_KEY
 const price_per_km = env.REACT_APP_PRICE_PER_KM
+const round_percent = env.REACT_APP_ROUND_PERCENT
+
+var priceOneWay = 0, priceRound = 0
+
+var from="", to="", time="", trip=""
 
 const stripePromise = loadStripe(stripePublicKey)
 
@@ -45,20 +50,45 @@ const CheckoutForm = () => {
     const stripe = useStripe();
     const elements = useElements();
 
-    //onChange={date=> setTicket({...ticket_states,depart_D: date})}
-
     const [amount,setAmount] = useState(0)
     const [isLoading, setLoading] = useState(false)
+    const [isReturning, setReturning] = useState(false)
+    const [depart_D, setDepart_D] = useState()
+    const [return_D, setReturn_D] = useState()
+    const [duration, setDuration] = useState()
 
     const handleChange = event=> {       
-        localStorage.setItem(event.target.name,event.target.value);
+
+        switch(event.target.name){
+            case "from":
+                from = event.target.value
+                break;
+            case "to":
+                to = event.target.value
+                break;
+            case "time":
+                time = event.target.value
+                break;
+            case "trip":
+                trip = event.target.value
+                switch(event.target.value){
+                    case "one-way":
+                        setReturning(false)
+                        setAmount(priceOneWay)
+                        break;
+                    case "round":
+                        setReturning(true)
+                        setAmount(priceRound)
+                        break;
+                    default: console.log("Ooops 2")
+                }
+                break;
+            default: console.log("Ooops")
+        }
 
         if(event.target.name === "from" || event.target.name === "to")
-        {   
-            var a = localStorage.getItem('from') 
-            var b = localStorage.getItem('to')
-            if(a !== null && b !== null)
-                callback(a,b)
+        {   if(from !== "" && to !== "")
+                callback(from,to)
         }
     }
     
@@ -79,16 +109,14 @@ const CheckoutForm = () => {
         {   if(provincies[i]===b)
                 to = coordenates[i]
         }
-        console.log(from+"e: "+to)
         
         //get Distance from the python API"
         axios.post(`http://localhost:5000/distance`, {from:from,to:to})
             .then(res => {
-                console.log(res)
                 var val = Math.trunc((res.data.distance/1000)*price_per_km)
-                localStorage.setItem('amount', val*100); //multiplicado por 100 porque stripe entende 2099 como 20,99
-                setAmount(val);
-                localStorage.setItem('duration', res.data.duration);
+                priceOneWay = val
+                priceRound = val * round_percent
+                setDuration(res.data.duration);
             }).catch((error) => { console.log("Something went wrong");
         });
         setLoading(false);
@@ -110,18 +138,16 @@ const CheckoutForm = () => {
 
             const ticket = {
                 email: localStorage.getItem('email'),    
-                from: localStorage.getItem('from'),
-                to: localStorage.getItem('to'),
-                depart: localStorage.getItem('depart_D'),
-                return: localStorage.getItem('return_D'),
-                time: localStorage.getItem('time'),
-                trip: localStorage.getItem('trip'),
+                from: from,
+                to: to,
+                depart: depart_D,
+                return: return_D,
+                time: time,
+                trip: trip,
                 id: id,
-                amount: localStorage.getItem('amount'),
-                duration: localStorage.getItem('duration')
+                amount: amount*100,
+                duration: duration
             }
-            localStorage.clear();
-            localStorage.setItem('email',ticket.email)
 
             console.log(ticket)
 
@@ -190,7 +216,7 @@ const CheckoutForm = () => {
                     <label htmlFor="departure">Departure date:</label>
                     <DatePicker showYearropdown scrollableMonthYearDropdown 
                         minDate={new Date()} dateFormat='dd/MM/yyyy' 
-                        onChange={date=> localStorage.setItem('depart_D', date)} name="departure" 
+                        onChange={date=> setDepart_D(date)} name="departure" 
                         className="form-control date" type="text" id="departure" 
                         placeholder="Select date..." required=""/>
                 </fieldset>
@@ -199,8 +225,9 @@ const CheckoutForm = () => {
                 <fieldset>
                     <label htmlFor="return">Return date:</label>
                     <DatePicker showYearropdown scrollableMonthYearDropdown 
+                        disabled={!isReturning}
                         minDate={new Date()} dateFormat='dd/MM/yyyy' 
-                        onChange={date=> localStorage.setItem('return_D', date)} name="return" type="text" 
+                        onChange={date=> setReturn_D(date)} name="return" type="text" 
                         className="form-control date" id="return" 
                         placeholder="Select date..." required=""/>
                 </fieldset>

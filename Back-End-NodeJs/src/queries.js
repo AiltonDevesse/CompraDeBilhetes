@@ -91,13 +91,11 @@ exports.ticket = async (req,res) => {
                 //QR code
                 data.amount /=100
                 var temp =[];
-                var ticketQr = data
+                var ticketQr = `DTransport Ticket\n\n`+
+                                `From: ${data.from}\nTo: ${data.to}\nDepart: ${data.depart_Date}\n`+
+                                `Return: ${data.return_Date}\nTime: ${data.time}\nTrip: ${data.trip}\n`
                 temp.push(ticketQr);
-                var phno = {
-                    data: data.phno
-                }
-                temp.push(phno);
-    
+                
                 newTicket.save((error) => {
                     if(error) { 
                         res.status(401).json({message: "Sorry, internal server errors"})  
@@ -105,6 +103,7 @@ exports.ticket = async (req,res) => {
                     else {
                         QRCode.toDataURL(temp,{errorCorrectionLevel:'H'},function (e, url) {
                             data.url = url;
+                            
                             pdf.create(pdfTemplate(data), {}).toFile('result.pdf', (err) => {
                                 if(err) {
                                     res.send(Promise.reject());
