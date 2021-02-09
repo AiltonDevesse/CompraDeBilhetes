@@ -12,9 +12,9 @@ export default class footer extends React.Component{
             <footer>
                 <div className="container">
                     <div className="row">
-                        <div class="col-md-12">
-                            <div class="primary-button">
-                                <button href="#" class="btn" onClick={this.handleLogOut}>Log Out</button>
+                        <div className="col-md-12">
+                            <div className="primary-button">
+                                <button href="#" className="btn" onClick={this.handleLogOut}>Log Out</button>
                             </div>
                         </div>
                         <div className="col-md-12"> 

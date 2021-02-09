@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import {toast} from 'react-toastify'
@@ -25,7 +25,12 @@ import {
     useElements
 } from '@stripe/react-stripe-js'
 
-const stripePromise = loadStripe("pk_test_51I7RfzFPhAiVvuVnJzVHi3uzpdtVUngJ6BplQBggkssa0e7fcL4VX6u5jJqmeZM8nQzhuiVhKdozWnmmqaQAiLwB00eMJrHOGc")
+import env from "react-dotenv";
+
+const stripePublicKey = env.REACT_APP_KEY
+const price_per_km = env.REACT_APP_PRICE_PER_KM
+
+const stripePromise = loadStripe(stripePublicKey)
 
 const provincies = ["Cabo Delgado","Gaza","Inhambane","Manica","Nampula","Maputo","Niassa","sofala","Tete","Zambezia"]
 
@@ -45,10 +50,6 @@ const CheckoutForm = () => {
     const [amount,setAmount] = useState(0)
     const [isLoading, setLoading] = useState(false)
 
-    useEffect(() => {
-        console.log("A")
-    },[amount])
-
     const handleChange = event=> {       
         localStorage.setItem(event.target.name,event.target.value);
 
@@ -64,7 +65,6 @@ const CheckoutForm = () => {
     // get distance
     function callback(a,b) {
         var from = "", to = ""
-        var price_per_km = 0.05
         var coordenates=["-14.146474505777185,38.62012337689581","-23.32717,32.34752","-23.64070,35.29293","-16.85309,38.25967",
                         "-15.11703,39.27298","-25.97594,32.57932","-12.94611,36.47686","-19.83119,34.83713","-15.96070,33.58754","-16.61018,36.93783"]
        
@@ -253,11 +253,6 @@ const CheckoutForm = () => {
 
 
 export default class MainPage extends React.Component{
-
-    constructor(props){
-        super(props);
-        
-    }
 
     render(){
         return( 

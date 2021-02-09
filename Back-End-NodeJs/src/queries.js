@@ -7,6 +7,10 @@ const Ticket = require('../Models/ticket');
 var QRCode = require('qrcode');
 const pdfTemplate = require('../documents');
 
+require('dotenv').config({path: `${__dirname}/.env`});
+
+let stripeSecretKey = process.env.KEY
+
 exports.login = async (req,res) => {
     try {
 	var email = req.body.email;
@@ -73,8 +77,8 @@ exports.ticket = async (req,res) => {
         if((a + b) < 25 ) {
 
             const amount = data.amount
-            const stripe = new Stripe("sk_test_51I7RfzFPhAiVvuVnbgEYtZPz628rL9XsmS9Xh3jzindMemH9myeim17jSaxoRi7tVkApPJLDlxOng7PVSbv70R5Q003XFF7Epz");
-            console.log("Start Stripe")
+            const stripe = new Stripe(stripeSecretKey);
+
             try{
                 await stripe.paymentIntents.create({
                     amount,

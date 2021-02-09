@@ -11,12 +11,6 @@ const auxBuyTicket = require('./src/auxBuyTicket');
 var cors = require('cors');
 const bodyParser = require('body-parser');
 
-
-if(process.env.NODE_ENV !== 'production'){
-	require('dotenv')
-}
-const stripeSecretKey =  process.env.STRIPE_SECRET_KEY
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
