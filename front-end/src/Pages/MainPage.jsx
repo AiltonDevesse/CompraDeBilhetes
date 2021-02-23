@@ -53,8 +53,8 @@ const CheckoutForm = () => {
     const [amount,setAmount] = useState(0)
     const [isLoading, setLoading] = useState(false)
     const [isReturning, setReturning] = useState(false)
-    const [depart_D, setDepart_D] = useState()
-    const [return_D, setReturn_D] = useState()
+    const [depart_D, setDepart_D] = useState(new Date())
+    const [return_D, setReturn_D] = useState(new Date())
     const [duration, setDuration] = useState()
 
     const handleChange = event=> {       
@@ -215,6 +215,7 @@ const CheckoutForm = () => {
                 <fieldset>
                     <label htmlFor="departure">Departure date:</label>
                     <DatePicker showYearropdown scrollableMonthYearDropdown 
+                        selected={depart_D}
                         minDate={new Date()} dateFormat='dd/MM/yyyy' 
                         onChange={date=> setDepart_D(date)} name="departure" 
                         className="form-control date" type="text" id="departure" 
@@ -226,6 +227,7 @@ const CheckoutForm = () => {
                     <label htmlFor="return">Return date:</label>
                     <DatePicker showYearropdown scrollableMonthYearDropdown 
                         disabled={!isReturning}
+                        selected={return_D}
                         minDate={new Date()} dateFormat='dd/MM/yyyy' 
                         onChange={date=> setReturn_D(date)} name="return" type="text" 
                         className="form-control date" id="return" 

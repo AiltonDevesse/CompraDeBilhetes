@@ -28,6 +28,22 @@ app.use('/loginQuery',auxLogin)
 
 app.use('/SignUpQuery',auxSignUp)
 
+app.get('/activate',  (req, response) => {
+    const User = require('./Models/users')
+    const email = req.query.token
+    try {
+        var myquery = {email: email};
+        var newvalue = {$set: {status: "Active"}};
+        User.updateOne(myquery, newvalue, function(err, res) {
+            if(err) { 
+                console.log("Falhou")
+            } 
+            else 
+                response.redirect("http://localhost:3000");
+        });
+    } catch (err) { console.log(err) }
+})
+
 app.use('/purchase', auxBuyTicket)
 
 app.get('/fetch-pdf', (req, res) => {

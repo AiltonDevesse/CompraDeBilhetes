@@ -10,6 +10,26 @@ const notify = (message) => {
     toast(message)
 }
 
+const emailRegex = RegExp(
+    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+);
+
+const formValid = ({ formErrors, ...rest }) => {
+    let valid = true;
+
+    // validate form errors being empty
+    Object.values(formErrors).forEach(val => {
+        val.length > 0 && (valid = false);
+    });
+
+    // validate the form was filled out
+    Object.values(rest).forEach(val => {
+        val === null && (valid = false);
+    });
+
+    return valid;
+};
+
 export default class Login extends React.Component{
     
     constructor(props){
@@ -17,6 +37,13 @@ export default class Login extends React.Component{
         this.state = {
             email: " ",
             senha: " ",
+            formErrors: {
+                nome: "",
+                apelido: "",
+                email: "",
+                senha: "",
+                confirm_senha: ""
+            },
             loading: false
         };
         this.handleChange = this.handleChange.bind(this);
@@ -24,9 +51,24 @@ export default class Login extends React.Component{
     }
 
     handleChange(event) {
-        this.setState({
-          [event.target.name]: event.target.value
-        });
+        let formErrors = { ...this.state.formErrors };
+        const { name, value } = event.target;
+
+        switch (name) {
+            case "email":
+                formErrors.email = emailRegex.test(value)
+                    && value !== "" ? ""
+                    : "invalid email address";
+                break;
+            case "senha":
+                formErrors.senha =
+                    value.length < 6 && value !== "" ? "minimum 6 characaters required" : "";
+                break;
+
+            default:
+                break;
+        }
+        this.setState({ formErrors, [name]: value }, () => console.log(this.state));
     }
 
     handleSubmit = event => {
@@ -38,13 +80,18 @@ export default class Login extends React.Component{
 
         this.setState({loading: true})
         
-        axios.post(`http://localhost:3001/loginQuery`, credenciais)
-            .then(res => {
-                localStorage.setItem("email",credenciais.email);
-                this.props.handleSucessfulAuth("a");
-            }).catch((error) => { notify(error.response.data.message);
-            
-        });
+        if(formValid(this.state)) {
+            axios.post(`http://localhost:3001/loginQuery`, credenciais)
+                .then(res => {
+                    localStorage.setItem("email",credenciais.email);
+                    this.props.handleSucessfulAuth("a");
+                }).catch((error) => { notify(error.response.data.message);
+                
+            });
+        }
+        else
+            notify("Fill the form correctly") 
+
         setTimeout(()=>{
             this.setState({loading: false});
         }, 2000)
@@ -52,6 +99,8 @@ export default class Login extends React.Component{
     
     render(){
         const {loading} = this.state;
+        const {formErrors} = this.state
+
         return( 
             <div className="login-content">
                 <form id="formu" action="login" method="POST" onSubmit={this.handleSubmit} onChange={this.handleChange}>
@@ -64,6 +113,9 @@ export default class Login extends React.Component{
                             </div>
                             <div className="div">
                                 <input placeholder="E-mail" type="email" name= "email" className="input" required/>
+                                {formErrors.email.length > 0 && (
+                                    <span className="errorMessage">{formErrors.email}</span>
+                                )}
                             </div>
                         </div>
                                         
@@ -73,6 +125,9 @@ export default class Login extends React.Component{
                             </div>
                             <div className="div">
                                 <input placeholder="Senha" type="password" name ="senha" className="input" required/>
+                                {formErrors.senha.length > 0 && (
+                                    <span className="errorMessage">{formErrors.senha}</span>
+                                )}    
                             </div>
                         </div>
                     </div>

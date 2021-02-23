@@ -13,17 +13,20 @@ let stripeSecretKey = process.env.KEY
 
 exports.login = async (req,res) => {
     try {
-	var email = req.body.email;
+	    var email = req.body.email;
         var password = req.body.password; 
 
-	User.findOne({email:email,password:password}).then(function(result){
-            if(result != null) { 
-                res.json(result.email);
-            } 
-            else {
-                res.status(401).json({message: "E-mail/Password is wrong"})
-            }
-        });
+        User.findOne({email:email,password:password}).then(function(result){
+                if(result != null) { 
+                    if(result.status == "Active")    
+                        res.json(result.email);
+                    else
+                        res.status(401).json({message: "Your account isn't active yet\nPlease check your email"})
+                } 
+                else {
+                    res.status(401).json({message: "E-mail/Password is wrong"})
+                }
+            });
     } catch (error) {res.status(500).send({error})}
 }
 

@@ -54,7 +54,7 @@ input[type = "radio"]:checked + label{
     width: 620px;
 }
 
-#formu{
+#formu, #formul{
 	width: 360px;
 }
 
@@ -185,6 +185,12 @@ a{
 
 a:hover{
 	color: #38d39f;
+}
+
+.errorMessage {
+	color: red;
+	font-size: 0.75em;
+	display: relative;
 }
 
 .bt{
